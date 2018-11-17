@@ -40,7 +40,6 @@ def index():
     elif(session.get('success')):
         success = session['success']
     session.clear()
-
     #get all public content items
     #DATE_SUB(NOW()) subtracts 24 hours from current timestamp 
     #and compare that with all the posted timestamps
@@ -51,6 +50,11 @@ def index():
 @app.route('/register', methods=['GET', 'POST'])
 def registerPage():
     return render_template('register.html')
+
+@app.route('/logout')
+def logout():
+    session.pop('username')
+    return redirect('/') #redirect to root page
 
 @app.route('/loginAuth', methods=['GET', 'POST'])
 def loginAuth():
@@ -105,16 +109,52 @@ def registerAuth():
         session['success'] = success
         return redirect(url_for('index'))
 
-#manages homepage
+# === manages homepage
 @app.route('/home', methods = ['GET', 'POST'])
 def home():
+    if('username' not in session):
+        error = 'User session invalid / expired. Please login.'
+        session['error'] = error
+        return redirect(url_for('index'))
     cursor = conn.cursor()
     query = 'SELECT * from person WHERE email=%s'
     cursor.execute(query, session['username'])
     result = cursor.fetchone()
     # print(result)
     cursor.close()
-    return render_template('home.html', username=session['username'], firstName=result['fname'])
+
+    #report any messages
+    error,success = None,None
+    if(session.get('error')):
+        error = session['error']
+        session.pop('error')
+    elif(session.get('success')):
+        success = session['success']
+        session.pop('success')
+
+    return render_template('home.html', username=session['username'], firstName=result['fname'], success=success)
+
+@app.route('/createFriendGroup', methods=['GET', 'POST'])
+def createFriendGroup():
+    return render_template('createFriendGroup.html')
+
+#Adds friendgroup record into DB
+@app.route('/insertFriendGroup', methods=['GET','POST'])
+def insertFriendGroup():
+    if('username' not in session):
+        error = 'User session invalid / expired. Please login.'
+        return redirect('/', error=error)
+    
+    username = session['username']
+    fg_name = request.form['fg_name']
+    description = request.form['description']
+
+    query = 'INSERT INTO friendgroup (owner_email, fg_name, description) VALUES(%s,%s,%s)'
+    result = processQuery(query, [username,fg_name,description])
+    success = 'FriendGroup ' + fg_name + ' created'
+    session['success'] = success
+    return redirect(url_for('home'))
+
 
 # ============== Post Content Logic
 @app.route('/postContent', methods=['GET','POST'])

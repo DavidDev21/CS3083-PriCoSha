@@ -24,11 +24,17 @@
                 <h3 class='mb-3'>The World of Content</h3>
             </div>
 
+            {% if success %}
+            <p class='success text-success'><strong>Success: </strong>{{success}}</p>
+            {% endif %}
+
             <!-- Menu Dashboard-->
             <div class='row col-10 text-center'>
                 <a href='/postContent' class='btn btn-primary'>Post Content</a>
                 <a href='/manageTags' class='btn btn-primary' disabled>Manage Tags</a>
                 <a href='/addFriend' class='btn btn-primary'>Add Friend</a>
+                <a href='createFriendGroup' class='btn btn-primary'>Create FriendGroup</a>
+                <a href='/logout' class='btn btn-primary'>Logout</a>
             </div>
         
             <!-- Content Table -->

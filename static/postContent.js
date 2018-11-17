@@ -1,4 +1,4 @@
 
-// function showFriendGroup() {
-//     if()
-// }
+function showFriendGroup() {
+    
+}
