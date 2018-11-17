@@ -5,14 +5,17 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
         <!-- Latest compiled and minified CSS -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-
         <!-- Optional theme -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
-
         <!-- Latest compiled and minified JavaScript -->
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
         <script src="/static/index.js"></script>
     </header>
+    <style>
+        .row {
+            margin-bottom: 10px
+        }
+    </style>
     <body>
         <div class='container'>
             <div class='row col-10 text-center'>
@@ -32,6 +35,31 @@
                 {% endif %}
                 <button onclick='handleSubmit()' type='submit' name='login' class='btn btn-primary' form="login-form" value='login'>Login</button>
                 <a href='/register' class='btn btn-primary'>Register</a>
+            </div>            
+
+            <!-- Content Table -->
+            <div class='row col-10 text-center'>
+                <h4>Content Items within 24 hours (Most recent)</h4>
+                <table class='table table-hover'>
+                    <thead class='thead-dark'>
+                        <tr>
+                            <th scope='col'>Item ID</th>
+                            <th scope='col'>Time Posted</th>
+                            <th scope='col'>Posted By</th>
+                            <th scope='col'>Viewable To</th>
+                            <th scope='col'>Item</th>
+                        </tr>
+                    </thead>
+                    {% for line in items %}
+                        <tr>
+                            <td>{{line.item_id}}</td>
+                            <td>{{line.post_time}}</td>
+                            <td>{{line.email_post}}</td>
+                            <td>Public</td>
+                            <td>{{line.file_path}}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
             </div>
         </div>
     </body>

@@ -12,6 +12,11 @@
         <!-- Latest compiled and minified JavaScript -->
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     </header>
+    <style>
+            .row {
+                margin-bottom: 10px
+            }
+    </style>
     <body>
         <div class='container'>
             <div class='row col-10 text-center'>
@@ -19,8 +24,36 @@
                 <h3 class='mb-3'>The World of Content</h3>
             </div>
 
+            <!-- Menu Dashboard-->
             <div class='row col-10 text-center'>
-                <p>Dashboard</p>
+                <a href='/postContent' class='btn btn-primary'>Post Content</a>
+                <a href='/manageTags' class='btn btn-primary' disabled>Manage Tags</a>
+                <a href='/addFriend' class='btn btn-primary'>Add Friend</a>
+            </div>
+        
+            <!-- Content Table -->
+            <div class='row col-10 text-center'>
+                <h4>Content Items within 24 hours (Most recent)</h4>
+                <table class='table table-hover'>
+                    <thead class='thead-dark'>
+                        <tr>
+                            <th scope='col'>Item ID</th>
+                            <th scope='col'>Time Posted</th>
+                            <th scope='col'>Posted By</th>
+                            <th scope='col'>Viewable To</th>
+                            <th scope='col'>Item</th>
+                        </tr>
+                    </thead>
+                    <!-- {% for line in items %}
+                        <tr>
+                            <td>{{line.item_id}}</td>
+                            <td>{{line.post_time}}</td>
+                            <td>{{line.email_post}}</td>
+                            <td>Public</td>
+                            <td>{{line.file_path}}</td>
+                        </tr>
+                    {% endfor %} -->
+                </table>
             </div>
         </div>
     </body>

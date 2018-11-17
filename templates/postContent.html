@@ -1,6 +1,6 @@
 <html>
     <header>
-        <title>CS3083 | PriCoSha</title>
+        <title>PriChoSha | {{username}}</title>
         <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
         <!-- Latest compiled and minified CSS -->
@@ -11,32 +11,30 @@
 
         <!-- Latest compiled and minified JavaScript -->
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-
     </header>
+    <style>
+            .row {
+                margin-bottom: 10px
+            }
+    </style>
     <body>
         <div class='container'>
             <div class='row col-10 text-center'>
-                <h1>Sign Up to PriCoSha!</h1>
+                <h1>Post Content Item</h1>
+                <h3>Please enter the content information</h3>
             </div>
-
+            <!--Post Content Form-->
             <div class='row col-10 text-center'>
-                <p><strong>Please enter the appropriate information for registration</strong></p>
-            </div>
-            <div class='row col-10 text-center'>
-                <form action='/registerAuth' method="POST" id='register-form'>
-                    <div class='row' style='margin-bottom: 10px'>
-                            <input type='text' name='username' placeholder='username' required>
-                            <input type='text' name='password' placeholder='password' required>
-                    </div>
-                    <div class='row'>
-                            <input type='text' name='first_name' placeholder='first name' required>
-                            <input type='text' name='last_name' placeholder='last name' required>
+                <form action='/postContent' method="POST" id='login-form'>
+                    <input type='text' name='username' placeholder='Content Name' required>
+                    <input type='text' name='password' placeholder='File Path'>
+                    <div>
+                        <label><input type='checkbox' name='is_pub'/> Is_Pub</label>
                     </div>
                 </form>
                 {% if error %}
-                <p class='error text-warning'><strong>Error:</strong> {{error}}</p>
+                    <p class="error text-warning"><strong>Error:</strong> {{error}}</p>
                 {% endif %}
-                <button type='submit' name='register' class='btn btn-primary' form="register-form" value='register'>Register</button>
             </div>
         </div>
     </body>

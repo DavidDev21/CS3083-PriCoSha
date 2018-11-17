@@ -14,16 +14,39 @@ conn = pymysql.connect(host='localhost',
                        charset='utf8mb4',
                        cursorclass=pymysql.cursors.DictCursor)
 
+#helper functions
+#precondition: 
+#   query has a string that has all the proper formatting
+#   parameters is a list of parameters for the query
+def processQuery(query, parameters, fetchall=False):
+    #use cursor to interact with DB
+    cursor = conn.cursor() #makes cursor object
+    cursor.execute(query, tuple(parameters))
+    data = None
+    if(fetchall):
+        data = cursor.fetchall()
+    else:
+        data = cursor.fetchone()
+    cursor.close()
+    return data
+
 #Define a route to index function
 @app.route('/')
 def index():
+    #gets result if user attempted to login
     error,success = None,None
     if(session.get('error')):
         error = session['error']
     elif(session.get('success')):
         success = session['success']
     session.clear()
-    return render_template('index.html', error=error, success=success)
+
+    #get all public content items
+    #DATE_SUB(NOW()) subtracts 24 hours from current timestamp 
+    #and compare that with all the posted timestamps
+    query = 'SELECT * FROM contentitem WHERE is_pub=1 AND post_time >= DATE_SUB(NOW(), INTERVAL 1 DAY) ORDER BY post_time DESC'
+    result = processQuery(query,[],True)
+    return render_template('index.html', error=error, success=success, items=result)
 
 @app.route('/register', methods=['GET', 'POST'])
 def registerPage():
@@ -38,7 +61,7 @@ def loginAuth():
     #use cursor to interact with DB
     cursor = conn.cursor() #makes cursor object
 
-    query = 'SELECT * FROM person WHERE email= %s AND password = %s'
+    query = 'SELECT * FROM person WHERE email= %s AND password = sha2(%s,256)'
     cursor.execute(query, (username,password))
 
     data = cursor.fetchone()
@@ -74,7 +97,7 @@ def registerAuth():
         return render_template('register.html', error=error)
     else:            
         #User does not exists, Insert User into person
-        query = 'INSERT INTO person VALUES (%s, %s, %s, %s)'
+        query = 'INSERT INTO person VALUES (%s, sha2(%s,256), %s, %s)'
         cursor.execute(query, (username,password, firstName, lastName))
         conn.commit() #DB commits query
         cursor.close()
@@ -82,15 +105,22 @@ def registerAuth():
         session['success'] = success
         return redirect(url_for('index'))
 
+#manages homepage
 @app.route('/home', methods = ['GET', 'POST'])
 def home():
     cursor = conn.cursor()
     query = 'SELECT * from person WHERE email=%s'
     cursor.execute(query, session['username'])
     result = cursor.fetchone()
-    print(result)
+    # print(result)
     cursor.close()
     return render_template('home.html', username=session['username'], firstName=result['fname'])
+
+# ============== Post Content Logic
+@app.route('/postContent', methods=['GET','POST'])
+def postContentPage():
+    return render_template('postContent.html')
+    
 
 app.secret_key = 'some key that you will never guess'
 #Run the app on localhost port 5000
