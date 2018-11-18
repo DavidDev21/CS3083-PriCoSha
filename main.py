@@ -116,11 +116,19 @@ def home():
         error = 'User session invalid / expired. Please login.'
         session['error'] = error
         return redirect(url_for('index'))
+    
+    #get all viewable content (that is viewable to the user and public)
+    cursor = conn.cursor()
+    query = 'SELECT * FROM contentitem LEFT OUTER JOIN (share NATURAL JOIN belong) USING (item_id) WHERE is_pub = 1 OR email=%s ORDER BY post_time DESC'
+    cursor.execute(query, session['username'])
+    result = cursor.fetchall() #get all content items that are public and viewable to user
+    cursor.close()
+
+    #get the user's first name
     cursor = conn.cursor()
     query = 'SELECT * from person WHERE email=%s'
     cursor.execute(query, session['username'])
-    result = cursor.fetchone()
-    # print(result)
+    result2 = cursor.fetchone()
     cursor.close()
 
     #report any messages
@@ -132,7 +140,7 @@ def home():
         success = session['success']
         session.pop('success')
 
-    return render_template('home.html', username=session['username'], firstName=result['fname'], success=success)
+    return render_template('home.html', username=session['username'], firstName=result2['fname'], items=result, success=success)
 
 @app.route('/createFriendGroup', methods=['GET', 'POST'])
 def createFriendGroup():
@@ -143,7 +151,8 @@ def createFriendGroup():
 def insertFriendGroup():
     if('username' not in session):
         error = 'User session invalid / expired. Please login.'
-        return redirect('/', error=error)
+        session['error'] = error
+        return redirect(url_for('index'))
     
     username = session['username']
     fg_name = request.form['fg_name']

@@ -50,15 +50,19 @@
                             <th scope='col'>Item</th>
                         </tr>
                     </thead>
-                    <!-- {% for line in items %}
+                    {% for line in items %}
                         <tr>
                             <td>{{line.item_id}}</td>
                             <td>{{line.post_time}}</td>
                             <td>{{line.email_post}}</td>
-                            <td>Public</td>
+                            {% if line.is_pub %}
+                                <td>Public</td>
+                            {% else %}
+                                <td>{{line.fg_name}}</td>
+                            {% endif %}
                             <td>{{line.file_path}}</td>
                         </tr>
-                    {% endfor %} -->
+                    {% endfor %}
                 </table>
             </div>
         </div>
