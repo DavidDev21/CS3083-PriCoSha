@@ -11,37 +11,65 @@
 
         <!-- Latest compiled and minified JavaScript -->
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
     </header>
     <style>
             .row {
                 margin-bottom: 10px
             }
     </style>
+    <script src='/static/postContent.js'></script>
     <body>
         <div class='container'>
             <div class='row col-10 text-center'>
                 <h1>Post Content Item</h1>
                 <h3>Please enter the content information</h3>
             </div>
-            <!--Post Content Form-->
-            <div class='row col-10 text-center'>
-                <form action='/postContent' method="POST" id='postContentForm'>
-                    <input type='text' name='username' placeholder='Content Name' required>
-                    <input type='text' name='password' placeholder='File Path'>
-                    <label style='display:inline'> Is_Pub <input type='checkbox' name='is_pub' value='is_pub' checked/></label>
 
-                    <!-- FriendGroup Sharing Info -->
-                    <div id='FriendGroupTable'>
-
-                    </div>
+            {% if error %}
+            <p class="error text-warning"><strong>Error:</strong> {{error}}</p>
+            {% endif %}
+            <label style='display:inline'> Is_Pub 
+                    <input type='checkbox' id='isPubCheck' name='is_pub' value='is_pub' onClick='JavaScript:toggleFriendGroup()' checked/>
+            </label>
+            <!--Post Public Content Form-->
+            <div class='row col-10 text-center public-group' id='publicForm' style='display:block'>
+                <form action='/processPublicContent/public' method="POST" id='postPublic'>
+                    <input type='text' name='contentName' placeholder='Content Name' required>
+                    <input type='text' name='filePath' placeholder='File Path'>
                 </form>
+            </div>
 
+            <!--Post FriendGroup Content Form-->
+            <div class='row col-10 text-center friend-group' style='display:none'>
+                <form action='/processFriendGroupContent/' method="POST" id='postFriendGroup'>
+                    <input type='text' name='contentName' placeholder='Content Name' required>
+                    <input type='text' name='filePath' placeholder='File Path'>
+                </form>
+            </div>
 
-                {% if error %}
-                    <p class="error text-warning"><strong>Error:</strong> {{error}}</p>
-                {% endif %}
+            <a href='/processPublicContent/fg_name=public' onClick='submitPublic()' id='publicSubmit' form='postContentForm' class='btn btn-primary public-group'>Post To Public</a>
+
+            <!-- FriendGroup Sharing Info -->
+            <div id='FriendGroupTable' class='friend-group' style='display:none'>
+                <h4>Here is a list of FriendGroups you can share with.</h4>
+                <h5>Just click on the FriendGroup to share</h5>
+                <table class='table table-hover'>
+                    <thead class='thead-dark'>
+                        <tr>
+                            <th scope='col'>FriendGroup Name</th>
+                            <th scope='col'>FriendGroup Description</th>
+                        </tr>
+                    </thead>
+                    {% for line in friendGroup %}
+                        <tr>
+                            <meta id='fg_name' data-target='{{line.fg_name}}'>
+                            <td><a href='/processFriendGroupContent/fg_name={{line.fg_name}}' name='fg_name' value='{{line.fg_name}}' form='postFriendGroup'>{{line.fg_name}}</a></td>
+                            <td>{{line.description}}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
             </div>
         </div>
     </body>
-
 </html>

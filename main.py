@@ -18,20 +18,28 @@ conn = pymysql.connect(host='localhost',
 #precondition: 
 #   query has a string that has all the proper formatting
 #   parameters is a list of parameters for the query
+#If don't need fetch, just pass None
 def processQuery(query, parameters, fetchall=False, commit=False):
     #use cursor to interact with DB
     cursor = conn.cursor() #makes cursor object
     #print(tuple(parameters))
     cursor.execute(query, tuple(parameters))
     data = None
-    if(fetchall):
+    if(fetchall == True):
         data = cursor.fetchall()
-    else:
+    elif(fetchall == False):
         data = cursor.fetchone()
     if(commit):
         conn.commit()
     cursor.close()
     return data
+
+#checks if the user session is valid
+def checkSession():
+    if('username' not in session):
+        error = 'User session invalid / expired. Please login.'
+        session['error'] = error
+        return redirect(url_for('index'))
 
 #Define a route to index function
 @app.route('/')
@@ -115,6 +123,7 @@ def registerAuth():
 # ==== render unique content item page
 @app.route('/itemPage/item_id=<int:item_id>&item_name=<string:item_name>', methods=['GET','POST'])
 def itemPage(item_id, item_name):
+    checkSession()
     # gets all tagged 
     #cursor = conn.cursor()
     query = 'SELECT * FROM tag JOIN person ON (email_tagged = email) WHERE item_id=%s AND status=\'true\''
@@ -135,11 +144,15 @@ def itemPage(item_id, item_name):
 # === manages homepage
 @app.route('/home', methods = ['GET', 'POST'])
 def home():
-    if('username' not in session):
-        error = 'User session invalid / expired. Please login.'
-        session['error'] = error
-        return redirect(url_for('index'))
-    
+    checkSession()
+    #report any messages
+    error,success = None,None
+    if(session.get('error')):
+        error = session['error']
+        session.pop('error')
+    elif(session.get('success')):
+        success = session['success']
+        session.pop('success')
     #get all viewable content (that is viewable to the user and public)
     cursor = conn.cursor()
     query = ('SELECT * FROM contentitem'
@@ -157,15 +170,6 @@ def home():
     result2 = cursor.fetchone()
     cursor.close()
 
-    #report any messages
-    error,success = None,None
-    if(session.get('error')):
-        error = session['error']
-        session.pop('error')
-    elif(session.get('success')):
-        success = session['success']
-        session.pop('success')
-
     return render_template('home.html', username=session['username'], firstName=result2['fname'], items=result, success=success)
 
 @app.route('/createFriendGroup', methods=['GET', 'POST'])
@@ -175,17 +179,14 @@ def createFriendGroup():
 #Adds friendgroup record into DB
 @app.route('/insertFriendGroup', methods=['GET','POST'])
 def insertFriendGroup():
-    if('username' not in session):
-        error = 'User session invalid / expired. Please login.'
-        session['error'] = error
-        return redirect(url_for('index'))
+    checkSession()
     
     username = session['username']
     fg_name = request.form['fg_name']
     description = request.form['description']
 
     query = 'INSERT INTO friendgroup (owner_email, fg_name, description) VALUES(%s,%s,%s)'
-    result = processQuery(query, [username,fg_name,description], False, True)
+    result = processQuery(query, [username,fg_name,description], None, True)
     success = 'FriendGroup ' + fg_name + ' created'
     session['success'] = success
     return redirect(url_for('home'))
@@ -194,8 +195,48 @@ def insertFriendGroup():
 # ============== Post Content Logic
 @app.route('/postContent', methods=['GET','POST'])
 def postContentPage():
-    return render_template('postContent.html')
-    
+    checkSession()
+    #get all the friendgroups that the user belongs to
+    query = 'SELECT * FROM friendgroup NATURAL JOIN belong WHERE email=%s'
+    friendGroup = processQuery(query, [session['username']],True)
+    return render_template('postContent.html',friendGroup=friendGroup)
+
+#process public postings
+@app.route('/processPublicContent/fg_name=<string:fg_name>', methods=['GET','POST'])
+def processPublicContent(fg_name):
+    checkSession()
+    itemName = request.form['contentName']
+    filePath = request.form['filePath']
+
+    query = 'INSERT INTO contentitem (email_post,file_path,item_name) VALUES (%s,%s,%s)'
+    result = processQuery(query, [session['username'],filePath,itemName],None,True)
+
+    success = 'Content is now posted'
+    session['success'] = success
+    return redirect(url_for('home'))
+
+#process friendgroup postings
+@app.route('/processFriendGroupContent/fg_name=<string:fg_name>', methods=['GET','POST'])
+def processFriendGroupContent(fg_name):
+    checkSession()
+    itemName = request.form['contentName']
+    filePath = request.form['filePath']
+
+    #first post the content into content table
+    query = 'INSERT INTO contentitem (email_post,file_path,item_name,is_pub) VALUES (%s,%s,%s,%s)'
+    result = processQuery(query, [session['username'],filePath,itemName,0],None,True)
+    #find the item_id that was just inserted
+    query = 'SELECT item_id FROM contentitem ORDER BY post_time DESC LIMIT 1'
+    itemID = processQuery(query, [])
+
+    #update tables to show that content is viewable to selected friendgroup
+    query = 'INSERT INTO share (owner_email, fg_name, item_id) VALUES (%s, %s, %s)'
+    result2 = processQuery(query, [session['username'],fg_name,itemID],None,True)
+
+    success = 'Content is now posted'
+    session['success'] = success
+    return redirect(url_for('home'))
+
 
 app.secret_key = 'some key that you will never guess'
 #Run the app on localhost port 5000

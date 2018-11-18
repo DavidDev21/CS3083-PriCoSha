@@ -57,8 +57,10 @@
                             <td>{{line.email_post}}</td>
                             {% if line.is_pub %}
                                 <td>Public</td>
-                            {% else %}
+                            {% elif line.fg_name %}
                                 <td>{{line.fg_name}}</td>
+                            {% else %}
+                                <td>Only to you</td>
                             {% endif %}
                             <td>{{line.file_path}}</td>
                         </tr>
