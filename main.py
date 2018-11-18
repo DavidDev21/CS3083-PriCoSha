@@ -18,15 +18,18 @@ conn = pymysql.connect(host='localhost',
 #precondition: 
 #   query has a string that has all the proper formatting
 #   parameters is a list of parameters for the query
-def processQuery(query, parameters, fetchall=False):
+def processQuery(query, parameters, fetchall=False, commit=False):
     #use cursor to interact with DB
     cursor = conn.cursor() #makes cursor object
+    #print(tuple(parameters))
     cursor.execute(query, tuple(parameters))
     data = None
     if(fetchall):
         data = cursor.fetchall()
     else:
         data = cursor.fetchone()
+    if(commit):
+        conn.commit()
     cursor.close()
     return data
 
@@ -109,6 +112,26 @@ def registerAuth():
         session['success'] = success
         return redirect(url_for('index'))
 
+# ==== render unique content item page
+@app.route('/itemPage/item_id=<int:item_id>&item_name=<string:item_name>', methods=['GET','POST'])
+def itemPage(item_id, item_name):
+    # gets all tagged 
+    #cursor = conn.cursor()
+    query = 'SELECT * FROM tag JOIN person ON (email_tagged = email) WHERE item_id=%s AND status=\'true\''
+    tagItems = processQuery(query,[item_id],True)
+
+    #cursor.execute(query, item_id)
+    #tagItems = cursor.fetchall()
+    #cursor.close()
+
+    #get all ratings
+    query = 'SELECT * FROM rate NATURAL JOIN person WHERE item_id=%s'
+    rateItems = processQuery(query,[item_id],True)
+
+    return render_template('contentItem.html', tagItems=tagItems, ratingItems=rateItems, item_id=item_id, item_name=item_name)
+
+
+
 # === manages homepage
 @app.route('/home', methods = ['GET', 'POST'])
 def home():
@@ -119,14 +142,17 @@ def home():
     
     #get all viewable content (that is viewable to the user and public)
     cursor = conn.cursor()
-    query = 'SELECT * FROM contentitem LEFT OUTER JOIN (share NATURAL JOIN belong) USING (item_id) WHERE is_pub = 1 OR email=%s ORDER BY post_time DESC'
-    cursor.execute(query, session['username'])
+    query = ('SELECT * FROM contentitem'
+            ' LEFT OUTER JOIN (share NATURAL JOIN belong) USING (item_id) WHERE is_pub = 1 '
+            'OR email=%s OR email_post=%s ORDER BY post_time DESC')
+    #print(query)
+    cursor.execute(query, (session['username'],session['username']))
     result = cursor.fetchall() #get all content items that are public and viewable to user
     cursor.close()
 
     #get the user's first name
     cursor = conn.cursor()
-    query = 'SELECT * from person WHERE email=%s'
+    query = 'SELECT fname from person WHERE email=%s'
     cursor.execute(query, session['username'])
     result2 = cursor.fetchone()
     cursor.close()
@@ -159,7 +185,7 @@ def insertFriendGroup():
     description = request.form['description']
 
     query = 'INSERT INTO friendgroup (owner_email, fg_name, description) VALUES(%s,%s,%s)'
-    result = processQuery(query, [username,fg_name,description])
+    result = processQuery(query, [username,fg_name,description], False, True)
     success = 'FriendGroup ' + fg_name + ' created'
     session['success'] = success
     return redirect(url_for('home'))

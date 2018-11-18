@@ -52,7 +52,7 @@
                     </thead>
                     {% for line in items %}
                         <tr>
-                            <td>{{line.item_id}}</td>
+                            <td><a href='/itemPage/item_id={{line.item_id}}&item_name={{line.item_name}}'>{{line.item_id}}</a></td>
                             <td>{{line.post_time}}</td>
                             <td>{{line.email_post}}</td>
                             {% if line.is_pub %}

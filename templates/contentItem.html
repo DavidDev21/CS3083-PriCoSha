@@ -1,0 +1,77 @@
+<html>
+    <header>
+        <title>CS3083 | PriCoSha</title>
+        <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+        <!-- Optional theme -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+        <!-- Latest compiled and minified JavaScript -->
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+        <script src="/static/index.js"></script>
+    </header>
+    <style>
+        .row {
+            margin-bottom: 10px
+        }
+    </style>
+    <body>
+        <div class='container'>
+            <div class='row col-10 text-center'>
+                <h1>{{item_id}}: {{item_name}}</h1>
+            </div>
+
+            <div class='row col-10 text-center'>
+                <!-- Content Table -->
+                <div class='col-5 text-center'>
+                    <h4>Table of Tags</h4>
+                    <table class='table table-hover'>
+                        <thead class='thead-dark'>
+                            <tr>
+                                <th scope='col'>First Name</th>
+                                <th scope='col'>Last Name</th>
+                                <th scope='col'>Tagged By</th>
+                                <th scope='col'>Date Tagged</th>
+                            </tr>
+                        </thead>
+                        {% for line in tagItems %}
+                            <tr>
+                                <td>{{line.fname}}</td>
+                                <td>{{line.lname}}</td>
+                                <td>{{line.email_tagger}}</td>
+                                <td>{{line.tagtime}}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+
+                <!-- Ratings Table -->
+                <div class='col-5 text-center'>
+                    <h4>Ratings</h4>
+                    <table class='table table-hover'>
+                        <thead class='thead-dark'>
+                            <tr>
+                                <th scope='col'>First Name</th>
+                                <th scope='col'>Last Name</th>
+                                <th scope='col'>Email</th>
+                                <th scope='col'>Rating</th>
+                                <th scope='col'>Date</th>
+                            </tr>
+                        </thead>
+                        {% for line in ratingItems %}
+                            <tr>
+                                <td>{{line.fname}}</td>
+                                <td>{{line.lname}}</td>
+                                <td>{{line.email}}</td>
+                                <td>{{line.emoji}}</td>
+                                <td>{{line.rate_time}}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>            
+        </div>
+    </body>
+
+</html>
