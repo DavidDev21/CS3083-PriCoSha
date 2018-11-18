@@ -237,6 +237,34 @@ def processFriendGroupContent(fg_name):
     session['success'] = success
     return redirect(url_for('home'))
 
+@app.route('/processContent/fg_name=<string:fg_name>', methods=['GET','POST'])
+def processContent(fg_name):
+    print('I am in processContent()')
+    checkSession()
+    print(request.form.get('contentName'))
+    print(request.form.get('filePath'))
+    print(request.form)
+    itemName = request.form['contentName']
+    filePath = request.form['filePath']
+    
+    if(fg_name == 'public'):
+        query = 'INSERT INTO contentitem (email_post,file_path,item_name) VALUES (%s,%s,%s)'
+        result = processQuery(query, [session['username'],filePath,itemName],None,True)
+    else:
+        #first post the content into content table
+        query = 'INSERT INTO contentitem (email_post,file_path,item_name,is_pub) VALUES (%s,%s,%s,%s)'
+        result = processQuery(query, [session['username'],filePath,itemName,0],None,True)
+        #find the item_id that was just inserted
+        query = 'SELECT item_id FROM contentitem ORDER BY post_time DESC LIMIT 1'
+        itemID = processQuery(query, [])
+
+        #update tables to show that content is viewable to selected friendgroup
+        query = 'INSERT INTO share (owner_email, fg_name, item_id) VALUES (%s, %s, %s)'
+        result2 = processQuery(query, [session['username'],fg_name,itemID],None,True)
+    
+    success = 'Content is now posted'
+    session['success'] = success
+    return redirect(url_for('home'))
 
 app.secret_key = 'some key that you will never guess'
 #Run the app on localhost port 5000

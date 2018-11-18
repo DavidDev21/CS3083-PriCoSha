@@ -23,16 +23,17 @@ function toggleFriendGroup()
 }
 function submitPublic()
 {
-    let form = document.getElementById('postPublic');
-    form.action = '/processPublicContent/fg_name=public';
-    $('#postContentForm').submit();
-    $('#postContentForm').reset();
+    let form = document.getElementById('contentForm');
+    form.action = '/processContent/fg_name=public';
+    form.submit();
+    form.reset();
 }
 
 function submitFriendGroup()
 {
-    console.log($('#fg_name').data('data-target'));
-    $('#postContentForm').action = '/processContent/fg_name=' + $('#fg_name').data('data-target');
-    $('#postContentForm').submit();
-    $('#postContentForm').reset();
+    console.log($('#fg_name').data('data-fg-name'));
+    let form = document.getElementById('contentForm');
+    form.action = '/processContent/fg_name=' + $('#fg_name').data('data-fg-name');
+    form.submit();
+    form.reset();
 }
