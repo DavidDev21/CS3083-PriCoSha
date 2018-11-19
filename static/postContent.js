@@ -29,7 +29,6 @@ function submitPublic()
 // handles the submt of friendgroup items
 function submitFriendGroup()
 {
-    console.log($('#friendGroupSubmit').data('data-fg-name'));
     let form = document.getElementById('contentForm');
     let fg_name = $('#friendGroupSubmit').data()['fgName']; 
     let fg_owner = $('#friendGroupSubmit').data()['fgOwner'];

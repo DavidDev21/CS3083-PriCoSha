@@ -1,6 +1,6 @@
 <html>
     <header>
-        <title>PriChoSha | {{username}}</title>
+        <title>PriChoSha | PriChoSha</title>
         <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
         <!-- Latest compiled and minified CSS -->
@@ -11,6 +11,7 @@
 
         <!-- Latest compiled and minified JavaScript -->
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
     </header>
     <style>
             .row {
@@ -19,41 +20,33 @@
     </style>
     <body>
         <div class='container'>
+            <a href='/home' class='btn btn-primary'>Return Home</a>
             <div class='row col-10 text-center'>
-                <h1>Welcome to PriCoSha, {{firstName}}</h1>
-                <h3 class='mb-3'>The World of Content</h3>
+                <h1>Manage Tags</h1>
+                <h3>Here are the items you are tagged in</h3>
             </div>
 
-            {% if success %}
-            <p class='text-center success text-success'><strong>Success: </strong>{{success}}</p>
+            {% if error %}
+            <p class="error text-warning"><strong>Error:</strong> {{error}}</p>
             {% endif %}
 
-            <!-- Menu Dashboard-->
+            <!-- Tagged Table -->
             <div class='row col-10 text-center'>
-                <a href='/postContent' class='btn btn-primary'>Post Content</a>
-                <a href='/manageTags' class='btn btn-primary'>Manage Tags</a>
-                <a href='/addFriend' class='btn btn-primary' disabled>Add Friend</a>
-                <a href='createFriendGroup' class='btn btn-primary'>Create FriendGroup</a>
-                <a href='/logout' class='btn btn-primary'>Logout</a>
-            </div>
-        
-            <!-- Content Table -->
-            <div class='row col-10 text-center'>
-                <h4>Content Items within 24 hours (Most recent)</h4>
+                <h4>Tag Table</h4>
                 <table class='table table-hover'>
                     <thead class='thead-dark'>
                         <tr>
                             <th scope='col'>Item ID</th>
-                            <th scope='col'>Time Posted</th>
                             <th scope='col'>Posted By</th>
                             <th scope='col'>Viewable To</th>
-                            <th scope='col'>Item</th>
+                            <th scope='col'>Tagged By</th>
+                            <th scope='col'>Tag Status</th>
+                            <th scope='col'>Accept/Decline</th>
                         </tr>
                     </thead>
                     {% for line in items %}
                         <tr>
                             <td><a href='/itemPage/item_id={{line.item_id}}&item_name={{line.item_name}}'>{{line.item_id}}</a></td>
-                            <td>{{line.post_time}}</td>
                             <td>{{line.email_post}}</td>
                             {% if line.is_pub %}
                                 <td>Public</td>
@@ -62,12 +55,21 @@
                             {% else %}
                                 <td>Only to you</td>
                             {% endif %}
-                            <td>{{line.file_path}}</td>
+                            <td>{{line.email_tagger}}</td>
+                            <td>{{line.status}}</td>
+                            <td>
+                                <form action='/tagActions' id='tag-{{line.item_id}}'method='POST'>
+                                    {% if line.status == 'true' %}
+                                    <button data-item-id='{{line.item_id}}' data-tagger='{{line.email_tagger}}' class='btn btn-success' name='action' type='submit' form='tag-{{line.item_id}}' value='accept'>Accept</button>
+                                    {% else %}
+                                    <button data-item-id='{{line.item_id}}' data-tagger='{{line.email_tagger}}' class='btn btn-danger' name='action' type='submit' form='tag-{{line.item_id}}' value='decline'>Decline</button>
+                                    {% endif %}
+                                </form>
+                            </td>
                         </tr>
                     {% endfor %}
                 </table>
             </div>
         </div>
     </body>
-
 </html>

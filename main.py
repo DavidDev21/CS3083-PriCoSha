@@ -281,6 +281,23 @@ def tagPerson(item_id,item_name):
     session['error'] = 'Can not tag, ' + tagEmail + ' , on this content item'
     return redirect(url_for('itemPage', item_id=item_id, item_name=item_name))
 
+# ==== tags
+@app.route('/manageTags')
+def manageTagPage():
+    checkSession()
+
+    query = 'SELECT * FROM tag NATURAL JOIN contentitem WHERE email_tagged=%s'
+    tags = processQuery(query,[session['username']],True)
+    return render_template('manageTags.html', items=tags)
+
+@app.route('/tagActions', methods=['GET','POST'])
+def tagActions():
+    checkSession()
+
+    print(request.form)
+    action = request.form['action']
+
+    return 'Testing'
 
 app.secret_key = 'some key that you will never guess'
 #Run the app on localhost port 5000
