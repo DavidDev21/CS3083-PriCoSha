@@ -180,14 +180,19 @@ def createFriendGroup():
 @app.route('/insertFriendGroup', methods=['GET','POST'])
 def insertFriendGroup():
     checkSession()
-    
-    username = session['username']
+
     fg_name = request.form['fg_name']
     description = request.form['description']
 
+    #Insert friendgroup details into table
     query = 'INSERT INTO friendgroup (owner_email, fg_name, description) VALUES(%s,%s,%s)'
-    result = processQuery(query, [username,fg_name,description], None, True)
-    success = 'FriendGroup ' + fg_name + ' created'
+    result = processQuery(query, [session['username'],fg_name,description], None, True)
+
+    #the owner is automatically belong into the new friendgroup
+    query = 'INSERT INTO belong (email, owner_email, fg_name) VALUES(%s,%s,%s)'
+    result2 = processQuery(query,[session['username'],session['username'],fg_name], None, True)
+
+    success = 'FriendGroup, ' + fg_name + ', created'
     session['success'] = success
     return redirect(url_for('home'))
 

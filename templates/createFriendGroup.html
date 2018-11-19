@@ -10,7 +10,6 @@
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
         <!-- Latest compiled and minified JavaScript -->
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-        <script src="/static/index.js"></script>
     </header>
     <style>
             .row {
@@ -25,10 +24,10 @@
             </div>
             <!--Post Content Form-->
             <div class='row col-10 text-center'>
-                <form action='/insertFriendGroup' method="POST" id='FriendGroup'>
-                    <input type='text' name='fg_name' placeholder='FriendGroup Name' required>
-                    <input type='text' name='description' placeholder='Description'>
-                    <button onclick='handleSubmit()' type='submit' name='createFriendGroup' class='btn btn-primary' form="FriendGroup" value='createFriendGroup'>Create FriendGroup</button>
+                <form action='/insertFriendGroup' method="POST" id='FriendGroupForm'>
+                    <input type='text' name='fg_name' placeholder='FriendGroup Name' maxlength='20' required>
+                    <input type='text' name='description' placeholder='Description' maxlength='1000'>
+                    <button type='submit' name='createFriendGroup' class='btn btn-primary' form="FriendGroupForm">Create FriendGroup</button>
                 </form>
                 {% if error %}
                     <p class="error text-warning"><strong>Error:</strong> {{error}}</p>
