@@ -21,6 +21,7 @@
     <script src='/static/postContent.js'></script>
     <body>
         <div class='container'>
+            <a href='/home' class='btn btn-primary'>Return Home</a>
             <div class='row col-10 text-center'>
                 <h1>Post Content Item</h1>
                 <h3>Please enter the content information</h3>
@@ -29,11 +30,12 @@
             {% if error %}
             <p class="error text-warning"><strong>Error:</strong> {{error}}</p>
             {% endif %}
-            <label style='display:inline'> Is_Pub 
-                    <input type='checkbox' id='isPubCheck' name='is_pub' value='is_pub' onClick='JavaScript:toggleFriendGroup()' checked/>
-            </label>
+
             <!--Post Content Form-->
             <div class='row col-10 text-center'>
+                <label style='display:inline'> Is_Pub 
+                        <input type='checkbox' id='isPubCheck' name='is_pub' value='is_pub' onClick='JavaScript:toggleFriendGroup()' checked/>
+                </label>
                 <form method="POST" id='contentForm'>
                     <input type='text' name='contentName' placeholder='Content Name' required>
                     <input type='text' name='filePath' placeholder='File Path'>

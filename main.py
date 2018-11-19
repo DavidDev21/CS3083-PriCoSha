@@ -124,6 +124,14 @@ def registerAuth():
 @app.route('/itemPage/item_id=<int:item_id>&item_name=<string:item_name>', methods=['GET','POST'])
 def itemPage(item_id, item_name):
     checkSession()
+    #report any messages
+    error,success = None,None
+    if(session.get('error')):
+        error = session['error']
+        session.pop('error')
+    elif(session.get('success')):
+        success = session['success']
+        session.pop('success')
     # gets all tagged 
     #cursor = conn.cursor()
     query = 'SELECT * FROM tag JOIN person ON (email_tagged = email) WHERE item_id=%s AND status=\'true\''
@@ -137,7 +145,7 @@ def itemPage(item_id, item_name):
     query = 'SELECT * FROM rate NATURAL JOIN person WHERE item_id=%s'
     rateItems = processQuery(query,[item_id],True)
 
-    return render_template('contentItem.html', tagItems=tagItems, ratingItems=rateItems, item_id=item_id, item_name=item_name)
+    return render_template('contentItem.html', success=success,tagItems=tagItems, ratingItems=rateItems, item_id=item_id, item_name=item_name)
 
 
 
@@ -241,6 +249,38 @@ def processContent(fg_name,fg_owner):
     success = 'Content is now posted'
     session['success'] = success
     return redirect(url_for('home'))
+
+# ==== Tag person
+@app.route('/tagPerson/<int:item_id><string:item_name>', methods=['GET', 'POST'])
+def tagPerson(item_id,item_name):
+    checkSession()
+
+    tagEmail = request.form['tagEmail']
+    
+    #self tag
+    if(tagEmail == session['username']):
+        query = 'INSERT INTO tag (email_tagged,email_tagger,item_id,status) VALUES (%s,%s,%s,%s)'
+        result = processQuery(query,[tagEmail,tagEmail,item_id,'true'])
+        session['success'] = tagEmail + ' is now tagged'
+        return redirect(url_for('itemPage', item_id=item_id, item_name=item_name))
+    
+    #see if the content item is actually visible to the tagPerson
+    query = ('SELECT * FROM contentitem'
+        ' LEFT OUTER JOIN (share NATURAL JOIN belong) USING (item_id) WHERE item_id=%s AND (is_pub = 1 '
+        'OR email=%s OR email_post=%s)')
+    item = processQuery(query,[item_id,tagEmail,tagEmail])
+    
+    #the item is visible to the tagPerson
+    if(len(item)):
+        query = 'INSERT INTO tag (email_tagged, email_tagger, item_id) VALUES (%s, %s, %s)'
+        result = processQuery(query, [tagEmail,session['username'],item_id],None,True)
+        session['success'] = tagEmail + ' is now tagged'
+        return redirect(url_for('itemPage', item_id=item_id, item_name=item_name))
+    
+    #the item is not visibile to tagPerson
+    session['error'] = 'Can not tag, ' + tagEmail + ' , on this content item'
+    return redirect(url_for('itemPage', item_id=item_id, item_name=item_name))
+
 
 app.secret_key = 'some key that you will never guess'
 #Run the app on localhost port 5000

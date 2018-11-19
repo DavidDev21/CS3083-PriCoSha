@@ -18,8 +18,24 @@
     </style>
     <body>
         <div class='container'>
+            <a href='/home' class='btn btn-primary'>Return Home</a>
             <div class='row col-10 text-center'>
                 <h1>{{item_id}}: {{item_name}}</h1>
+            </div>
+
+            <!-- Tag Menu -->
+            <div class='row col-10 text-center'>
+                {% if success %}
+                    <p class='success text-success'><strong>Success: </strong>{{success}}</p>
+                {% elif error%}
+                    <p class="error text-warning"><strong>Error:</strong> {{error}}</p>
+                {% endif %}
+                <h3 style='text-decoration: underline'><strong>Tag someone</strong></h3>
+                <form action='/tagPerson/{{item_id}}{{item_name}}' method='POST' id='tagPerson'>
+                    <label>Please enter the email</label>
+                    <input type='text' name='tagEmail' placeholder='email' maxlength='20'>
+                    <button class='btn btn-primary' type='submit' name='tagSubmit' form='tagPerson'>Submit Tag</button>
+                </form>
             </div>
 
             <div class='row col-10 text-center'>
