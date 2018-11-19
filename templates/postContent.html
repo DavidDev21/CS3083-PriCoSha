@@ -34,14 +34,13 @@
             </label>
             <!--Post Content Form-->
             <div class='row col-10 text-center'>
-                <form action='/processContent' method="POST" id='contentForm'>
+                <form method="POST" id='contentForm'>
                     <input type='text' name='contentName' placeholder='Content Name' required>
                     <input type='text' name='filePath' placeholder='File Path'>
                 </form>
             </div>
 
-            <button type='submit' onClick='submitPublic()' name='publicSubmit' form='contentForm'>Test1</button>
-            <a disabled href='/processContent/fg_name=public' onClick='submitPublic()' id='publicSubmit' form='contentForm' class='btn btn-primary public-group'>Post To Public</a>
+            <a onClick='submitPublic()' id='publicSubmit' form='contentForm' class='btn btn-primary public-group'>Post To Public</a>
 
             <!-- FriendGroup Sharing Info -->
             <div id='FriendGroupTable' class='text-center' style='display:none'>
@@ -51,13 +50,14 @@
                     <thead class='thead-dark'>
                         <tr>
                             <th scope='col'>FriendGroup Name</th>
+                            <th scope='col'>FriendGroup Owner</th>
                             <th scope='col'>FriendGroup Description</th>
                         </tr>
                     </thead>
                     {% for line in friendGroup %}
                         <tr>
-                            <meta id='fg_name' data-fg-name='{{line.fg_name}}'>
-                            <td><a href='/processContent/fg_name={{line.fg_name}}' onClick='submitFriendGroup()' form='contentForm'>{{line.fg_name}}</a></td>
+                            <td><a id='friendGroupSubmit' data-fg-owner='{{line.owner_email}}' data-fg-name='{{line.fg_name}}' onClick='submitFriendGroup()' form='contentForm'>{{line.fg_name}}</a></td>
+                            <td>{{line.owner_email}}</td>
                             <td>{{line.description}}</td>
                         </tr>
                     {% endfor %}

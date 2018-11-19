@@ -197,53 +197,19 @@ def insertFriendGroup():
 def postContentPage():
     checkSession()
     #get all the friendgroups that the user belongs to
+    #friendgroup has the description information
     query = 'SELECT * FROM friendgroup NATURAL JOIN belong WHERE email=%s'
     friendGroup = processQuery(query, [session['username']],True)
     return render_template('postContent.html',friendGroup=friendGroup)
 
-#process public postings
-@app.route('/processPublicContent/fg_name=<string:fg_name>', methods=['GET','POST'])
-def processPublicContent(fg_name):
-    checkSession()
-    itemName = request.form['contentName']
-    filePath = request.form['filePath']
-
-    query = 'INSERT INTO contentitem (email_post,file_path,item_name) VALUES (%s,%s,%s)'
-    result = processQuery(query, [session['username'],filePath,itemName],None,True)
-
-    success = 'Content is now posted'
-    session['success'] = success
-    return redirect(url_for('home'))
-
-#process friendgroup postings
-@app.route('/processFriendGroupContent/fg_name=<string:fg_name>', methods=['GET','POST'])
-def processFriendGroupContent(fg_name):
-    checkSession()
-    itemName = request.form['contentName']
-    filePath = request.form['filePath']
-
-    #first post the content into content table
-    query = 'INSERT INTO contentitem (email_post,file_path,item_name,is_pub) VALUES (%s,%s,%s,%s)'
-    result = processQuery(query, [session['username'],filePath,itemName,0],None,True)
-    #find the item_id that was just inserted
-    query = 'SELECT item_id FROM contentitem ORDER BY post_time DESC LIMIT 1'
-    itemID = processQuery(query, [])
-
-    #update tables to show that content is viewable to selected friendgroup
-    query = 'INSERT INTO share (owner_email, fg_name, item_id) VALUES (%s, %s, %s)'
-    result2 = processQuery(query, [session['username'],fg_name,itemID],None,True)
-
-    success = 'Content is now posted'
-    session['success'] = success
-    return redirect(url_for('home'))
-
-@app.route('/processContent/fg_name=<string:fg_name>', methods=['GET','POST'])
-def processContent(fg_name):
+#process postings
+@app.route('/processContent/fg_name=<string:fg_name>&fg_owner=<string:fg_owner>', methods=['GET','POST'])
+def processContent(fg_name,fg_owner):
     print('I am in processContent()')
     checkSession()
-    print(request.form.get('contentName'))
-    print(request.form.get('filePath'))
-    print(request.form)
+    # print(request.form.get('contentName'))
+    # print(request.form.get('filePath'))
+    # print(request.form)
     itemName = request.form['contentName']
     filePath = request.form['filePath']
     
@@ -258,9 +224,14 @@ def processContent(fg_name):
         query = 'SELECT item_id FROM contentitem ORDER BY post_time DESC LIMIT 1'
         itemID = processQuery(query, [])
 
+        # #get the owner of the friendgroup that you want to share to
+        # query = 'SELECT * FROM belong WHERE email=%s AND fg_name=%s'
+        # friendGroupInfo = processQuery(query, [session['username'],fg_name])
+
         #update tables to show that content is viewable to selected friendgroup
         query = 'INSERT INTO share (owner_email, fg_name, item_id) VALUES (%s, %s, %s)'
-        result2 = processQuery(query, [session['username'],fg_name,itemID],None,True)
+
+        result2 = processQuery(query, [fg_owner,fg_name,itemID['item_id']],None,True)
     
     success = 'Content is now posted'
     session['success'] = success
