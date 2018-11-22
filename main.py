@@ -36,9 +36,12 @@ def processQuery(query, parameters, fetchall=False, commit=False):
 
 #checks if the user session is valid
 def checkSession():
+    print('Am I even??')
+    print('username' not in session)
     if('username' not in session):
         error = 'User session invalid / expired. Please login.'
         session['error'] = error
+        print('I am in the if statement')
         return redirect(url_for('index'))
 
 #Define a route to index function
@@ -123,7 +126,11 @@ def registerAuth():
 # ==== render unique content item page
 @app.route('/itemPage/item_id=<int:item_id>&item_name=<string:item_name>', methods=['GET','POST'])
 def itemPage(item_id, item_name):
-    checkSession()
+    # checkSession() #for some reason, doesn't execute as expected
+    if('username' not in session):
+        error = 'User session invalid / expired. Please login.'
+        session['error'] = error
+        return redirect(url_for('index'))
     #report any messages
     error,success = None,None
     if(session.get('error')):
@@ -144,15 +151,21 @@ def itemPage(item_id, item_name):
     #get all ratings
     query = 'SELECT * FROM rate NATURAL JOIN person WHERE item_id=%s'
     rateItems = processQuery(query,[item_id],True)
-
-    return render_template('contentItem.html', success=success,tagItems=tagItems, ratingItems=rateItems, item_id=item_id, item_name=item_name)
+    username = None
+    if('username' in session):
+        username = session['username']
+    return render_template('contentItem.html', success=success,tagItems=tagItems, ratingItems=rateItems, item_id=item_id, item_name=item_name, username=username)
 
 
 
 # === manages homepage
 @app.route('/home', methods = ['GET', 'POST'])
 def home():
-    checkSession()
+    # checkSession() #for some reason, doesn't execute as expected
+    if('username' not in session):
+        error = 'User session invalid / expired. Please login.'
+        session['error'] = error
+        return redirect(url_for('index'))
     #report any messages
     error,success = None,None
     if(session.get('error')):
@@ -187,7 +200,11 @@ def createFriendGroup():
 #Adds friendgroup record into DB
 @app.route('/insertFriendGroup', methods=['GET','POST'])
 def insertFriendGroup():
-    checkSession()
+    # checkSession() #for some reason, doesn't execute as expected
+    if('username' not in session):
+        error = 'User session invalid / expired. Please login.'
+        session['error'] = error
+        return redirect(url_for('index'))
 
     fg_name = request.form['fg_name']
     description = request.form['description']
@@ -208,7 +225,11 @@ def insertFriendGroup():
 # ============== Post Content Logic
 @app.route('/postContent', methods=['GET','POST'])
 def postContentPage():
-    checkSession()
+    # checkSession() #for some reason, doesn't execute as expected
+    if('username' not in session):
+        error = 'User session invalid / expired. Please login.'
+        session['error'] = error
+        return redirect(url_for('index'))
     #get all the friendgroups that the user belongs to
     #friendgroup has the description information
     query = 'SELECT * FROM friendgroup NATURAL JOIN belong WHERE email=%s'
@@ -218,8 +239,11 @@ def postContentPage():
 #process postings
 @app.route('/processContent/fg_name=<string:fg_name>&fg_owner=<string:fg_owner>', methods=['GET','POST'])
 def processContent(fg_name,fg_owner):
-    print('I am in processContent()')
-    checkSession()
+    # checkSession() #for some reason, doesn't execute as expected
+    if('username' not in session):
+        error = 'User session invalid / expired. Please login.'
+        session['error'] = error
+        return redirect(url_for('index'))
     # print(request.form.get('contentName'))
     # print(request.form.get('filePath'))
     # print(request.form)
@@ -253,7 +277,11 @@ def processContent(fg_name,fg_owner):
 # ==== Tag person
 @app.route('/tagPerson/<int:item_id><string:item_name>', methods=['GET', 'POST'])
 def tagPerson(item_id,item_name):
-    checkSession()
+    # checkSession() #for some reason, doesn't execute as expected
+    if('username' not in session):
+        error = 'User session invalid / expired. Please login.'
+        session['error'] = error
+        return redirect(url_for('index'))
 
     tagEmail = request.form['tagEmail']
     
@@ -284,7 +312,11 @@ def tagPerson(item_id,item_name):
 # ==== tags
 @app.route('/manageTags')
 def manageTagPage():
-    checkSession()
+    # checkSession() #for some reason, doesn't execute as expected
+    if('username' not in session):
+        error = 'User session invalid / expired. Please login.'
+        session['error'] = error
+        return redirect(url_for('index'))
 
     query = 'SELECT * FROM tag NATURAL JOIN contentitem WHERE email_tagged=%s AND status=\'false\''
     tags = processQuery(query,[session['username']],True)
@@ -292,7 +324,11 @@ def manageTagPage():
 
 @app.route('/tagActions/tagger=<string:tagger>&item=<int:item_id>', methods=['GET','POST'])
 def tagActions(tagger, item_id):
-    checkSession()
+    # checkSession() #for some reason, doesn't execute as expected
+    if('username' not in session):
+        error = 'User session invalid / expired. Please login.'
+        session['error'] = error
+        return redirect(url_for('index'))
 
     action = request.form['action']
 
@@ -313,7 +349,11 @@ def tagActions(tagger, item_id):
 #Note: the current user is the owner
 @app.route('/addFriend', methods=['GET','POST'])
 def addFriend():
-    checkSession()
+    # checkSession() #for some reason, doesn't execute as expected
+    if('username' not in session):
+        error = 'User session invalid / expired. Please login.'
+        session['error'] = error
+        return redirect(url_for('index'))
     #get all the friendgroups that the user owns
     query = 'SELECT * FROM friendgroup WHERE owner_email=%s'
     friendGroup = processQuery(query, [session['username']],True)
@@ -321,7 +361,11 @@ def addFriend():
 
 @app.route('/addFriendConfirmation/fg_name=<string:fg_name>', methods=['GET','POST'])
 def addFriendConfirmation(fg_name):
-    checkSession()
+    # checkSession() #for some reason, doesn't execute as expected
+    if('username' not in session):
+        error = 'User session invalid / expired. Please login.'
+        session['error'] = error
+        return redirect(url_for('index'))
 
     firstName = request.form['firstName']
     lastName = request.form['lastName']
@@ -332,7 +376,7 @@ def addFriendConfirmation(fg_name):
     people = processQuery(query, [session['username'], firstName,lastName,fg_name],True)
     #if empty, then there is no one under that name that you can add
     if(len(people) == 0):
-        session['error'] = 'No one under ' + firstName + ' ' + lastName + ' can be added to ' + fg_name
+        session['error'] = 'No one under ' + firstName + ' ' + lastName + ' is avaliable / can be added to ' + fg_name
         return redirect(url_for('home'))
     #if there is only one matching person, then just add them
     elif(len(people) == 1):
@@ -348,9 +392,14 @@ def addFriendConfirmation(fg_name):
 #adds the person once the user confirms who it should be.
 @app.route('/addFriendConfirmation/email=<string:email>&fg_name=<string:fg_name>', methods=['GET','POST'])
 def addFriendConfirmationProcess(email,fg_name):
-    checkSession()
+    # checkSession() #for some reason, doesn't execute as expected
+    if('username' not in session):
+        error = 'User session invalid / expired. Please login.'
+        session['error'] = error
+        return redirect(url_for('index'))
     query = 'INSERT INTO belong(email,owner_email, fg_name) VALUES (%s,%s,%s)'
     result = processQuery(query,[email,session['username'], fg_name], None, True)
+
     session['success'] = session['friendName'][0] + ' ' + session['friendName'][1] + ' has been added to ' + fg_name
     session.pop('friendName')
     return redirect(url_for('home'))

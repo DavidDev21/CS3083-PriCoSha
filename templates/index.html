@@ -56,7 +56,11 @@
                             <td>{{line.post_time}}</td>
                             <td>{{line.email_post}}</td>
                             <td>Public</td>
-                            <td>{{line.file_path}}</td>
+                            {% if line.file_path %}
+                                <td>{{line.file_path}}</td>
+                            {% else %}
+                                <td>None</td>
+                            {% endif %}
                         </tr>
                     {% endfor %}
                 </table>

@@ -18,11 +18,15 @@
     </style>
     <body>
         <div class='container'>
+            {% if username %}
             <a href='/home' class='btn btn-primary'>Return Home</a>
+            {% endif %}
+
             <div class='row col-10 text-center'>
                 <h1>{{item_id}}: {{item_name}}</h1>
             </div>
 
+            {% if username %}
             <!-- Tag Menu -->
             <div class='row col-10 text-center'>
                 {% if success %}
@@ -37,7 +41,7 @@
                     <button class='btn btn-primary' type='submit' name='tagSubmit' form='tagPerson'>Submit Tag</button>
                 </form>
             </div>
-
+            {% endif %}
             <div class='row col-10 text-center'>
                 <!-- Content Table -->
                 <div class='col-5 text-center'>
