@@ -178,7 +178,7 @@ def home():
     result2 = cursor.fetchone()
     cursor.close()
 
-    return render_template('home.html', username=session['username'], firstName=result2['fname'], items=result, success=success)
+    return render_template('home.html', username=session['username'], firstName=result2['fname'], items=result, success=success, error=error)
 
 @app.route('/createFriendGroup', methods=['GET', 'POST'])
 def createFriendGroup():
@@ -308,6 +308,52 @@ def tagActions(tagger, item_id):
         result = processQuery(query, [session['username'], tagger, item_id], None, True)
         session['success'] = 'The tag from ' + tagger + ' has been removed'
         return redirect(url_for('home'))
+
+#== manages add friend to group
+#Note: the current user is the owner
+@app.route('/addFriend', methods=['GET','POST'])
+def addFriend():
+    checkSession()
+    #get all the friendgroups that the user owns
+    query = 'SELECT * FROM friendgroup WHERE owner_email=%s'
+    friendGroup = processQuery(query, [session['username']],True)
+    return render_template('addFriend.html', friendGroup=friendGroup)
+
+@app.route('/addFriendConfirmation/fg_name=<string:fg_name>', methods=['GET','POST'])
+def addFriendConfirmation(fg_name):
+    checkSession()
+
+    firstName = request.form['firstName']
+    lastName = request.form['lastName']
+
+    # Gets anyone with the matching name minus person who may already be part of the fg
+    query = ('SELECT fname,lname,email FROM person WHERE email!=%s AND fname=%s AND lname=%s AND '
+            'email NOT IN (SELECT email FROM belong WHERE fg_name=%s)')
+    people = processQuery(query, [session['username'], firstName,lastName,fg_name],True)
+    #if empty, then there is no one under that name that you can add
+    if(len(people) == 0):
+        session['error'] = 'No one under ' + firstName + ' ' + lastName + ' can be added to ' + fg_name
+        return redirect(url_for('home'))
+    #if there is only one matching person, then just add them
+    elif(len(people) == 1):
+        query = 'INSERT INTO belong(email,owner_email, fg_name) VALUES (%s,%s,%s)'
+        result = processQuery(query, [people[0]['email'], session['username'], fg_name], None, True)
+        session['success'] = firstName + ' ' + lastName + ' has been added to ' + fg_name
+        return redirect(url_for('home'))
+
+    session['friendName'] = (firstName,lastName)
+    #there are more than one matching tuples
+    return render_template('addFriendConfirmation.html', people=people, fg_name=fg_name)
+
+#adds the person once the user confirms who it should be.
+@app.route('/addFriendConfirmation/email=<string:email>&fg_name=<string:fg_name>', methods=['GET','POST'])
+def addFriendConfirmationProcess(email,fg_name):
+    checkSession()
+    query = 'INSERT INTO belong(email,owner_email, fg_name) VALUES (%s,%s,%s)'
+    result = processQuery(query,[email,session['username'], fg_name], None, True)
+    session['success'] = session['friendName'][0] + ' ' + session['friendName'][1] + ' has been added to ' + fg_name
+    session.pop('friendName')
+    return redirect(url_for('home'))
 
 app.secret_key = 'some key that you will never guess'
 #Run the app on localhost port 5000

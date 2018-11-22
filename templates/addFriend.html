@@ -18,13 +18,13 @@
                 margin-bottom: 10px
             }
     </style>
-    <script src='/static/postContent.js'></script>
+    <script src='/static/addFriend.js'></script>
     <body>
         <div class='container'>
             <a href='/home' class='btn btn-primary'>Return Home</a>
             <div class='row col-10 text-center'>
-                <h1>Post Content Item</h1>
-                <h3>Please enter the content information</h3>
+                <h1>Add a friend</h1>
+                <h3>Please enter the first and last name of your friend</h3>
             </div>
 
             {% if error %}
@@ -33,33 +33,25 @@
 
             <!--Post Content Form-->
             <div class='row col-10 text-center'>
-                <label style='display:inline'> Is_Pub 
-                        <input type='checkbox' id='isPubCheck' name='is_pub' value='is_pub' onClick='JavaScript:toggleFriendGroup()' checked/>
-                </label>
-                <form method="POST" id='contentForm'>
-                    <input type='text' name='contentName' placeholder='Content Name' required>
-                    <input type='text' name='filePath' placeholder='File Path' required>
+                <form method="POST" id='friendForm'>
+                    <input type='text' name='firstName' placeholder='First Name' required>
+                    <input type='text' name='lastName' placeholder='Last Name' required>
                 </form>
             </div>
-
-            <a onClick='submitPublic()' style='display:block' id='publicSubmit' form='contentForm' class='btn btn-primary public-group'>Post To Public</a>
-
             <!-- FriendGroup Sharing Info -->
-            <div id='FriendGroupTable' class='text-center' style='display:none'>
-                <h4>Here is a list of FriendGroups you can share with.</h4>
-                <h5>Just click on the FriendGroup to share</h5>
+            <div id='FriendGroupTable' class='text-center'>
+                <h4>Here is a list of FriendGroups you own</h4>
+                <h5>Just click on the FriendGroup you want to add this person to.</h5>
                 <table class='table table-hover'>
                     <thead class='thead-dark'>
                         <tr>
                             <th scope='col'>FriendGroup Name</th>
-                            <th scope='col'>FriendGroup Owner</th>
                             <th scope='col'>FriendGroup Description</th>
                         </tr>
                     </thead>
                     {% for line in friendGroup %}
                         <tr>
-                            <td><a data-fg-owner='{{line.owner_email}}' data-fg-name='{{line.fg_name}}' form='contentForm'>{{line.fg_name}}</a></td>
-                            <td>{{line.owner_email}}</td>
+                            <td><a data-fg-name='{{line.fg_name}}' form='friendForm'>{{line.fg_name}}</a></td>
                             <td>{{line.description}}</td>
                         </tr>
                     {% endfor %}

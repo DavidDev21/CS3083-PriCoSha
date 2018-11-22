@@ -18,49 +18,35 @@
                 margin-bottom: 10px
             }
     </style>
-    <script src='/static/postContent.js'></script>
     <body>
         <div class='container'>
             <a href='/home' class='btn btn-primary'>Return Home</a>
             <div class='row col-10 text-center'>
-                <h1>Post Content Item</h1>
-                <h3>Please enter the content information</h3>
+                <h1>Confirmation Page</h1>
+                <h3>Found more than 1 matching. Please confirm your friend.</h3>
             </div>
 
             {% if error %}
             <p class="error text-warning"><strong>Error:</strong> {{error}}</p>
             {% endif %}
 
-            <!--Post Content Form-->
-            <div class='row col-10 text-center'>
-                <label style='display:inline'> Is_Pub 
-                        <input type='checkbox' id='isPubCheck' name='is_pub' value='is_pub' onClick='JavaScript:toggleFriendGroup()' checked/>
-                </label>
-                <form method="POST" id='contentForm'>
-                    <input type='text' name='contentName' placeholder='Content Name' required>
-                    <input type='text' name='filePath' placeholder='File Path' required>
-                </form>
-            </div>
-
-            <a onClick='submitPublic()' style='display:block' id='publicSubmit' form='contentForm' class='btn btn-primary public-group'>Post To Public</a>
-
             <!-- FriendGroup Sharing Info -->
-            <div id='FriendGroupTable' class='text-center' style='display:none'>
-                <h4>Here is a list of FriendGroups you can share with.</h4>
-                <h5>Just click on the FriendGroup to share</h5>
+            <div id='PeopleTable' class='text-center'>
+                <h4>People Found: {{people|length}}</h4>
+                <h5>Just click on the person's email to confirm</h5>
                 <table class='table table-hover'>
                     <thead class='thead-dark'>
                         <tr>
-                            <th scope='col'>FriendGroup Name</th>
-                            <th scope='col'>FriendGroup Owner</th>
-                            <th scope='col'>FriendGroup Description</th>
+                            <th scope='col'>First Name</th>
+                            <th scope='col'>Last Name</th>
+                            <th scope='col'>Email</th>
                         </tr>
                     </thead>
-                    {% for line in friendGroup %}
+                    {% for line in people %}
                         <tr>
-                            <td><a data-fg-owner='{{line.owner_email}}' data-fg-name='{{line.fg_name}}' form='contentForm'>{{line.fg_name}}</a></td>
-                            <td>{{line.owner_email}}</td>
-                            <td>{{line.description}}</td>
+                            <td>{{line.fname}}</td>
+                            <td>{{line.lname}}</td>
+                            <td><a href='/addFriendConfirmation/email={{line.email}}&fg_name={{fg_name}}'>{{line.email}}</a>
                         </tr>
                     {% endfor %}
                 </table>

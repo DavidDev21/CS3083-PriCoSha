@@ -27,12 +27,15 @@
             {% if success %}
             <p class='text-center success text-success'><strong>Success: </strong>{{success}}</p>
             {% endif %}
+            {% if error %}
+            <p class="text-center error text-warning"><strong>Error:</strong> {{error}}</p>
+            {% endif %}
 
             <!-- Menu Dashboard-->
             <div class='row col-10 text-center'>
                 <a href='/postContent' class='btn btn-primary'>Post Content</a>
                 <a href='/manageTags' class='btn btn-primary'>Manage Tags</a>
-                <a href='/addFriend' class='btn btn-primary' disabled>Add Friend</a>
+                <a href='/addFriend' class='btn btn-primary'>Add Friend</a>
                 <a href='createFriendGroup' class='btn btn-primary'>Create FriendGroup</a>
                 <a href='/logout' class='btn btn-primary'>Logout</a>
             </div>
