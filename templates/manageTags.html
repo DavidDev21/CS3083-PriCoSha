@@ -38,7 +38,6 @@
                         <tr>
                             <th scope='col'>Item ID</th>
                             <th scope='col'>Posted By</th>
-                            <th scope='col'>Viewable To</th>
                             <th scope='col'>Tagged By</th>
                             <th scope='col'>Tag Status</th>
                             <th scope='col'>Accept/Decline</th>
@@ -48,22 +47,12 @@
                         <tr>
                             <td><a href='/itemPage/item_id={{line.item_id}}&item_name={{line.item_name}}'>{{line.item_id}}</a></td>
                             <td>{{line.email_post}}</td>
-                            {% if line.is_pub %}
-                                <td>Public</td>
-                            {% elif line.fg_name %}
-                                <td>{{line.fg_name}}</td>
-                            {% else %}
-                                <td>Only to you</td>
-                            {% endif %}
                             <td>{{line.email_tagger}}</td>
                             <td>{{line.status}}</td>
                             <td>
-                                <form action='/tagActions' id='tag-{{line.item_id}}'method='POST'>
-                                    {% if line.status == 'true' %}
-                                    <button data-item-id='{{line.item_id}}' data-tagger='{{line.email_tagger}}' class='btn btn-success' name='action' type='submit' form='tag-{{line.item_id}}' value='accept'>Accept</button>
-                                    {% else %}
-                                    <button data-item-id='{{line.item_id}}' data-tagger='{{line.email_tagger}}' class='btn btn-danger' name='action' type='submit' form='tag-{{line.item_id}}' value='decline'>Decline</button>
-                                    {% endif %}
+                                <form action='/tagActions/tagger={{line.email_tagger}}&item={{line.item_id}}' id='tag-{{line.item_id}}'method='POST'>
+                                    <button class='btn btn-success' name='action' type='submit' form='tag-{{line.item_id}}' value='accept'>Accept</button>
+                                    <button class='btn btn-danger' name='action' type='submit' form='tag-{{line.item_id}}' value='decline'>Decline</button>
                                 </form>
                             </td>
                         </tr>

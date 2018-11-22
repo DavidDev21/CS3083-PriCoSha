@@ -286,18 +286,28 @@ def tagPerson(item_id,item_name):
 def manageTagPage():
     checkSession()
 
-    query = 'SELECT * FROM tag NATURAL JOIN contentitem WHERE email_tagged=%s'
+    query = 'SELECT * FROM tag NATURAL JOIN contentitem WHERE email_tagged=%s AND status=\'false\''
     tags = processQuery(query,[session['username']],True)
     return render_template('manageTags.html', items=tags)
 
-@app.route('/tagActions', methods=['GET','POST'])
-def tagActions():
+@app.route('/tagActions/tagger=<string:tagger>&item=<int:item_id>', methods=['GET','POST'])
+def tagActions(tagger, item_id):
     checkSession()
 
-    print(request.form)
     action = request.form['action']
 
-    return 'Testing'
+    #change status of tag
+    if(action == 'accept'):
+        query = 'UPDATE tag SET status=\'true\' WHERE email_tagged=%s AND email_tagger=%s AND item_id=%s'
+        result = processQuery(query, [session['username'], tagger, item_id], None, True)
+        session['success'] = 'You have accepted the tag from ' + tagger
+        return redirect(url_for('home'))
+    #remove tag from tag table
+    elif(action == 'decline'):
+        query = 'DELETE FROM tag WHERE email_tagged=%s AND email_tagger=%s AND item_id=%s'
+        result = processQuery(query, [session['username'], tagger, item_id], None, True)
+        session['success'] = 'The tag from ' + tagger + ' has been removed'
+        return redirect(url_for('home'))
 
 app.secret_key = 'some key that you will never guess'
 #Run the app on localhost port 5000
