@@ -34,16 +34,6 @@ def processQuery(query, parameters, fetchall=False, commit=False):
     cursor.close()
     return data
 
-#checks if the user session is valid
-def checkSession():
-    print('Am I even??')
-    print('username' not in session)
-    if('username' not in session):
-        error = 'User session invalid / expired. Please login.'
-        session['error'] = error
-        print('I am in the if statement')
-        return redirect(url_for('index'))
-
 #Define a route to index function
 @app.route('/')
 def index():
@@ -60,6 +50,13 @@ def index():
     query = 'SELECT * FROM contentitem WHERE is_pub=1 AND post_time >= DATE_SUB(NOW(), INTERVAL 1 DAY) ORDER BY post_time DESC'
     result = processQuery(query,[],True)
     return render_template('index.html', error=error, success=success, items=result)
+
+#checks if the user session is valid
+def checkSession():
+    if('username' not in session):
+        error = 'User session invalid / expired. Please login.'
+        session['error'] = error
+        return redirect(url_for('index'))
 
 @app.route('/register', methods=['GET', 'POST'])
 def registerPage():
@@ -151,10 +148,13 @@ def itemPage(item_id, item_name):
     #get all ratings
     query = 'SELECT * FROM rate NATURAL JOIN person WHERE item_id=%s'
     rateItems = processQuery(query,[item_id],True)
-    username = None
-    if('username' in session):
-        username = session['username']
-    return render_template('contentItem.html', success=success,tagItems=tagItems, ratingItems=rateItems, item_id=item_id, item_name=item_name, username=username)
+
+    #get filePath
+    query = 'SELECT file_path FROM contentitem WHERE item_id=%s'
+    filePath = processQuery(query, [item_id])['file_path']
+
+    username = session['username']
+    return render_template('contentItem.html', filePath=filePath, success=success,tagItems=tagItems, ratingItems=rateItems, item_id=item_id, item_name=item_name, username=username)
 
 
 
