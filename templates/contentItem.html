@@ -38,7 +38,7 @@
                 <h3 style='text-decoration: underline'><strong>Tag someone</strong></h3>
                 <form action='/tagPerson/{{item_id}}{{item_name}}' method='POST' id='tagPerson'>
                     <label>Please enter the email</label>
-                    <input type='text' name='tagEmail' placeholder='email' maxlength='20'>
+                    <input type='text' name='tagEmail' placeholder='email' maxlength='20' required>
                     <button class='btn btn-primary' type='submit' name='tagSubmit' form='tagPerson'>Submit Tag</button>
                 </form>
             </div>

@@ -154,7 +154,7 @@ def itemPage(item_id, item_name):
     filePath = processQuery(query, [item_id])['file_path']
 
     username = session['username']
-    return render_template('contentItem.html', filePath=filePath, success=success,tagItems=tagItems, ratingItems=rateItems, item_id=item_id, item_name=item_name, username=username)
+    return render_template('contentItem.html', filePath=filePath, success=success,error=error, tagItems=tagItems, ratingItems=rateItems, item_id=item_id, item_name=item_name, username=username)
 
 
 
@@ -286,18 +286,27 @@ def tagPerson(item_id,item_name):
 
     tagEmail = request.form['tagEmail']
     
+    #check if the email is valid
+    query = 'SELECT email FROM person WHERE email=%s'
+    valid = processQuery(query,[tagEmail])
+
+    if(valid == None):
+        session['error'] = 'Invalid email'
+        return redirect(url_for('itemPage', item_id=item_id, item_name=item_name))
+
+
     #self tag
     if(tagEmail == session['username']):
         query = 'INSERT INTO tag (email_tagged,email_tagger,item_id,status) VALUES (%s,%s,%s,%s)'
         result = processQuery(query,[tagEmail,tagEmail,item_id,'true'])
-        session['success'] = tagEmail + ' is now tagged'
+        session['success'] = 'A tag request has been sent to ' + tagEmail
         return redirect(url_for('itemPage', item_id=item_id, item_name=item_name))
     
     #see if the content item is actually visible to the tagPerson
     query = ('SELECT * FROM contentitem'
         ' LEFT OUTER JOIN (share NATURAL JOIN belong) USING (item_id) WHERE item_id=%s AND (is_pub = 1 '
-        'OR email=%s OR email_post=%s)')
-    item = processQuery(query,[item_id,tagEmail,tagEmail])
+        'OR email=%s)')
+    item = processQuery(query,[item_id,tagEmail])
     
     #the item is visible to the tagPerson
     if(len(item)):
