@@ -11,3 +11,8 @@ Finished use case
 5. Tag and Rate items
 6. Manage Tags
 7. Add Friends
+
+Future Iterations
+1. Upload and store image files
+2. Deploy project on an hosting platform
+3. UI improvements
