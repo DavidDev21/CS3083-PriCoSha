@@ -25,21 +25,43 @@
             <div class='row col-10 text-center'>
                 <h1>{{item_id}}: {{item_name}}</h1>
                 <p>Content File Path: {{filePath}}</p>
+                {% if success %}
+                <p class='success text-success'><strong>Success: </strong>{{success}}</p>
+                {% elif error%}
+                <p class="error text-warning"><strong>Error:</strong> {{error}}</p>
+                {% endif %}
             </div>
 
             {% if username %}
             <!-- Tag Menu -->
             <div class='row col-10 text-center'>
-                {% if success %}
-                    <p class='success text-success'><strong>Success: </strong>{{success}}</p>
-                {% elif error%}
-                    <p class="error text-warning"><strong>Error:</strong> {{error}}</p>
-                {% endif %}
                 <h3 style='text-decoration: underline'><strong>Tag someone</strong></h3>
                 <form action='/tagPerson/{{item_id}}{{item_name}}' method='POST' id='tagPerson'>
                     <label>Please enter the email</label>
                     <input type='text' name='tagEmail' placeholder='email' maxlength='20'>
                     <button class='btn btn-primary' type='submit' name='tagSubmit' form='tagPerson'>Submit Tag</button>
+                </form>
+            </div>
+            <!-- Rate Options -->
+            <div class='row col-10 text-center'>
+                <h3 style='text-decoration: underline'><strong>Rate this item</strong></h3>
+                <form action='/rateItem/{{item_id}}{{item_name}}' method='POST' id='rateItem'>
+                    <label>1
+                        <input type="radio" name="starValue" value="1" />
+                    </label>
+                    <label>2
+                        <input type="radio" name="starValue" value="2" />
+                    </label>
+                    <label>3
+                        <input type="radio" name="starValue" value="3" />
+                    </label>
+                    <label>4
+                        <input type="radio" name="starValue" value="4" />
+                    </label>
+                    <label>5
+                        <input type="radio" name="starValue" value="5" />
+                    </label>
+                    <button class='btn btn-primary' type='submit' name='rateSubmit' form='rateItem'>Submit Rating</button>
                 </form>
             </div>
             {% endif %}

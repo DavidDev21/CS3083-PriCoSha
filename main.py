@@ -176,11 +176,12 @@ def home():
         session.pop('success')
     #get all viewable content (that is viewable to the user and public)
     cursor = conn.cursor()
+    # don't need email_post since you belong into a group when you post
     query = ('SELECT * FROM contentitem'
             ' LEFT OUTER JOIN (share NATURAL JOIN belong) USING (item_id) WHERE is_pub = 1 '
-            'OR email=%s OR email_post=%s ORDER BY post_time DESC')
+            'OR email=%s ORDER BY post_time DESC')
     #print(query)
-    cursor.execute(query, (session['username'],session['username']))
+    cursor.execute(query, (session['username']))
     result = cursor.fetchall() #get all content items that are public and viewable to user
     cursor.close()
 
@@ -309,6 +310,28 @@ def tagPerson(item_id,item_name):
     session['error'] = 'Can not tag, ' + tagEmail + ' , on this content item'
     return redirect(url_for('itemPage', item_id=item_id, item_name=item_name))
 
+#== process rating
+@app.route('/rateItem/<int:item_id><string:item_name>', methods=['GET','POST'])
+def rateItem(item_id, item_name):
+    # checkSession() #for some reason, doesn't execute as expected
+    if('username' not in session):
+        error = 'User session invalid / expired. Please login.'
+        session['error'] = error
+        return redirect(url_for('index'))
+
+    rating = request.form['starValue']
+    query = 'SELECT * FROM rate WHERE email=%s AND item_id=%s'
+    oldRating = processQuery(query, [session['username'], item_id])
+
+    if(oldRating):
+        query = 'UPDATE rate SET emoji=%s, rate_time=CURRENT_TIMESTAMP WHERE email=%s AND item_id=%s'
+        result = processQuery(query, [rating,session['username'], item_id], None, True)
+    else:
+        query = 'INSERT INTO rate(email, item_id, emoji) VALUES (%s, %s, %s)'
+        result = processQuery(query, [session['username'], item_id, rating], None, True)
+
+    return redirect(url_for('itemPage', item_id=item_id, item_name=item_name))
+
 # ==== tags
 @app.route('/manageTags')
 def manageTagPage():
@@ -344,6 +367,8 @@ def tagActions(tagger, item_id):
         result = processQuery(query, [session['username'], tagger, item_id], None, True)
         session['success'] = 'The tag from ' + tagger + ' has been removed'
         return redirect(url_for('home'))
+
+
 
 #== manages add friend to group
 #Note: the current user is the owner
