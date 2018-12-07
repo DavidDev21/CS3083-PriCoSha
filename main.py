@@ -122,11 +122,6 @@ def registerAuth():
 # ==== render unique content item page
 @app.route('/itemPage/item_id=<int:item_id>&item_name=<string:item_name>', methods=['GET','POST'])
 def itemPage(item_id, item_name):
-    # checkSession() #for some reason, doesn't execute as expected
-    if('username' not in session):
-        error = 'User session invalid / expired. Please login.'
-        session['error'] = error
-        return redirect(url_for('index'))
     #report any messages
     error,success = None,None
     if(session.get('error')):
@@ -152,7 +147,9 @@ def itemPage(item_id, item_name):
     query = 'SELECT file_path FROM contentitem WHERE item_id=%s'
     filePath = processQuery(query, [item_id])['file_path']
 
-    username = session['username']
+    username = None
+    if('username' in session):
+        username = session['username']
     return render_template('contentItem.html', filePath=filePath, success=success,error=error, tagItems=tagItems, ratingItems=rateItems, item_id=item_id, item_name=item_name, username=username)
 
 
