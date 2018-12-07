@@ -55,4 +55,4 @@ function submitFriendGroup(e)
     }
 }
 
-document.addEventListener('click', submitFriendGroup(e));
+document.addEventListener('click', (e) => {submitFriendGroup(e)});

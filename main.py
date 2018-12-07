@@ -69,7 +69,6 @@ def logout():
 
 @app.route('/loginAuth', methods=['GET', 'POST'])
 def loginAuth():
-
     username = request.form['username']
     password = request.form['password']
 
@@ -196,6 +195,11 @@ def home():
 
 @app.route('/createFriendGroup', methods=['GET', 'POST'])
 def createFriendGroup():
+    # checkSession() #for some reason, doesn't execute as expected
+    if('username' not in session):
+        error = 'User session invalid / expired. Please login.'
+        session['error'] = error
+        return redirect(url_for('index'))
     return render_template('createFriendGroup.html')
 
 #Adds friendgroup record into DB
@@ -222,6 +226,34 @@ def insertFriendGroup():
     session['success'] = success
     return redirect(url_for('home'))
 
+@app.route('/leaveFriendGroup')
+def leaveFriendGroupPage():
+    # checkSession() #for some reason, doesn't execute as expected
+    if('username' not in session):
+        error = 'User session invalid / expired. Please login.'
+        session['error'] = error
+        return redirect(url_for('index'))
+    query = 'SELECT * FROM belong NATURAL JOIN friendgroup WHERE email=%s AND owner_email != %s'
+    result = processQuery(query,[session['username'], session['username']],True)
+    return render_template('leaveFriendGroup.html' , items=result)
+
+@app.route('/leaveGroupAction/fg_name=<string:fg_name>&fg_owner=<string:fg_owner>', methods=['GET','POST'])
+def leaveGroupAction(fg_name, fg_owner):
+    # checkSession() #for some reason, doesn't execute as expected
+    if('username' not in session):
+        error = 'User session invalid / expired. Please login.'
+        session['error'] = error
+        return redirect(url_for('index'))
+    #User shouldn't leave their own friendgroup. (may in the future)
+    if(fg_owner == session['username']):
+        session['error'] = 'Owner shouldn\'t leave their own group'
+        return redirect(url_for('home'))
+    
+    #delete user from belong table
+    query = 'DELETE FROM belong WHERE email=%s AND owner_email=%s AND fg_name=%s'
+    result = processQuery(query, [session['username'],fg_owner, fg_name],None, True)
+    session['success'] = 'You are no longer part of: ' + fg_name
+    return redirect(url_for('home'))
 
 # ============== Post Content Logic
 @app.route('/postContent', methods=['GET','POST'])
@@ -294,12 +326,19 @@ def tagPerson(item_id,item_name):
         session['error'] = 'Invalid email'
         return redirect(url_for('itemPage', item_id=item_id, item_name=item_name))
 
+    #check if the email already has a tag request
+    query = 'SELECT email_tagged FROM tag WHERE email_tagger=%s AND email_tagged=%s AND item_id=%s'
+    existTag = processQuery(query,[session['username'],tagEmail,item_id])
+
+    if(existTag):
+        session['error'] = tagEmail + ' already is tagged / has a pending tag request from you'
+        return redirect(url_for('itemPage', item_id=item_id, item_name=item_name))
 
     #self tag
     if(tagEmail == session['username']):
         query = 'INSERT INTO tag (email_tagged,email_tagger,item_id,status) VALUES (%s,%s,%s,%s)'
         result = processQuery(query,[tagEmail,tagEmail,item_id,'true'])
-        session['success'] = 'A tag request has been sent to ' + tagEmail
+        session['success'] = 'Self-Tag successful!'
         return redirect(url_for('itemPage', item_id=item_id, item_name=item_name))
     
     #see if the content item is actually visible to the tagPerson
@@ -309,10 +348,10 @@ def tagPerson(item_id,item_name):
     item = processQuery(query,[item_id,tagEmail])
     
     #the item is visible to the tagPerson
-    if(len(item)):
+    if(item):
         query = 'INSERT INTO tag (email_tagged, email_tagger, item_id) VALUES (%s, %s, %s)'
         result = processQuery(query, [tagEmail,session['username'],item_id],None,True)
-        session['success'] = tagEmail + ' is now tagged'
+        session['success'] = tagEmail + ' has been sent a tag request'
         return redirect(url_for('itemPage', item_id=item_id, item_name=item_name))
     
     #the item is not visibile to tagPerson
@@ -393,6 +432,7 @@ def addFriend():
     friendGroup = processQuery(query, [session['username']],True)
     return render_template('addFriend.html', friendGroup=friendGroup)
 
+#addFriendConfirmation assumes the user is already the owner of the friendgroup
 @app.route('/addFriendConfirmation/fg_name=<string:fg_name>', methods=['GET','POST'])
 def addFriendConfirmation(fg_name):
     # checkSession() #for some reason, doesn't execute as expected
@@ -406,8 +446,8 @@ def addFriendConfirmation(fg_name):
 
     # Gets anyone with the matching name minus person who may already be part of the fg
     query = ('SELECT fname,lname,email FROM person WHERE email!=%s AND fname=%s AND lname=%s AND '
-            'email NOT IN (SELECT email FROM belong WHERE fg_name=%s)')
-    people = processQuery(query, [session['username'], firstName,lastName,fg_name],True)
+            'email NOT IN (SELECT email FROM belong WHERE owner_email=%s AND fg_name=%s)')
+    people = processQuery(query, [session['username'], firstName,lastName,session['username'],fg_name],True)
     #if empty, then there is no one under that name that you can add
     if(len(people) == 0):
         session['error'] = 'No one under ' + firstName + ' ' + lastName + ' is avaliable / can be added to ' + fg_name
