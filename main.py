@@ -440,7 +440,7 @@ def tagActions(tagger, item_id):
     elif(action == 'decline'):
         query = 'DELETE FROM tag WHERE email_tagged=%s AND email_tagger=%s AND item_id=%s'
         result = processQuery(query, [session['username'], tagger, item_id], None, True)
-        session['success'] = 'The tag from ' + tagger + ' has been removed'
+        session['success'] = 'The tag from ' + tagger + ' has been declined'
         return redirect(url_for('home'))
 
 
