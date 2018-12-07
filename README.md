@@ -12,6 +12,7 @@ Finished use case
 6. Manage Tags
 7. Add Friends
 8. Leave FriendGroup
+9. Kick Friend
 
 Future Iterations
 1. Upload and store image files
