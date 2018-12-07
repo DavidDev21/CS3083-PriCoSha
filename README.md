@@ -11,6 +11,7 @@ Finished use case
 5. Tag and Rate items
 6. Manage Tags
 7. Add Friends
+8. Leave FriendGroup
 
 Future Iterations
 1. Upload and store image files
