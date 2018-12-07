@@ -255,6 +255,36 @@ def leaveGroupAction(fg_name, fg_owner):
     session['success'] = 'You are no longer part of: ' + fg_name
     return redirect(url_for('home'))
 
+@app.route('/kickFriend')
+def kickFriend():
+    # checkSession() #for some reason, doesn't execute as expected
+    if('username' not in session):
+        error = 'User session invalid / expired. Please login.'
+        session['error'] = error
+        return redirect(url_for('index'))
+
+    query = 'SELECT fname,lname,email,fg_name,owner_email FROM belong NATURAL JOIN friendgroup NATURAL JOIN person WHERE email!=%s AND owner_email=%s'
+    result = processQuery(query,[session['username'],session['username']],True)
+    if(result):
+        return render_template('kickFriend.html', items=result)
+
+    session['error'] = 'You do not own any friendgroups'
+    return redirect(url_for('home'))
+
+@app.route('/processKick/email=<string:email>&fg_name=<string:fg_name>', methods=['GET','POST'])
+def processKick(email, fg_name):
+    # checkSession() #for some reason, doesn't execute as expected
+    if('username' not in session):
+        error = 'User session invalid / expired. Please login.'
+        session['error'] = error
+        return redirect(url_for('index'))
+
+    query = 'DELETE FROM belong WHERE email=%s AND owner_email=%s AND fg_name=%s'
+    result = processQuery(query,[email,session['username'],fg_name],None, True)
+
+    session['success'] = email + ' has been kicked out of ' + fg_name
+    return redirect(url_for('home'))
+
 # ============== Post Content Logic
 @app.route('/postContent', methods=['GET','POST'])
 def postContentPage():
