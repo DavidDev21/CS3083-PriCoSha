@@ -2,6 +2,9 @@
 Databases Project
 
 A simple social platform for sharing content
+Tools used
+1.) Python Flask
+2.) Git
 
 Finished use case
 1. Login / Register
