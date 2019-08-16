@@ -2,11 +2,12 @@
 Databases Project
 
 A simple social platform for sharing content
-Tools used
-1.) Python Flask
-2.) Git
 
-Finished use case
+# Tools used
+1. Python Flask
+2. Git
+
+# Finished use case
 1. Login / Register
 2. View public content
 3. View shared content
@@ -17,7 +18,7 @@ Finished use case
 8. Leave FriendGroup
 9. Kick Friend
 
-Future Iterations
+# Future Iterations
 1. Upload and store image files
 2. Deploy project on an hosting platform
 3. UI improvements
